@@ -76,9 +76,10 @@ class CopyrightUpdater(sublime_plugin.EventListener):
     updated = {}
 
     def on_pre_save(self, view):
-        copyright_updated = self.updated.get(view.buffer_id(), False)
-        if not copyright_updated:
-            view.run_command('copyright_updater')
+        if view.is_dirty():
+            copyright_updated = self.updated.get(view.buffer_id(), False)
+            if not copyright_updated:
+                view.run_command('copyright_updater')
 
     def on_modified(self, view):
         sel = view.sel()
@@ -89,3 +90,6 @@ class CopyrightUpdater(sublime_plugin.EventListener):
             copyright_updated = bool(m)
             if copyright_updated or 'copyright_updated' in self.updated:
                 self.updated[view.buffer_id()] = copyright_updated
+
+    def on_close(self, view):
+        self.updated.pop(view.buffer_id(), None)
