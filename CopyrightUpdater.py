@@ -35,7 +35,7 @@ class CopyrightUpdaterCommand(sublime_plugin.TextCommand):
         view = self.view
         region = view.find(COPYRIGHT_RE_PATTERN, 0)
         copyright = view.substr(region)
-        m = COPYRIGHT_RE.match(copyright)
+        m = COPYRIGHT_RE.search(copyright)
         if m:
             prefix, years, suffix = m.groups()
             dashed = '-' in years
@@ -67,9 +67,25 @@ class CopyrightUpdaterCommand(sublime_plugin.TextCommand):
                     else:
                         years_strings.append('-'.join('{}'.format(y) for y in year))
             years = comma.join(years_strings)
-            view.replace(edit, region, prefix + years + suffix)
+            new_copyright = prefix + years + suffix
+            if new_copyright != copyright:
+                view.replace(edit, region, new_copyright)
 
 
 class CopyrightUpdater(sublime_plugin.EventListener):
+    updated = {}
+
     def on_pre_save(self, view):
-        view.run_command('copyright_updater')
+        copyright_updated = self.updated.get(view.buffer_id(), False)
+        if not copyright_updated:
+            view.run_command('copyright_updater')
+
+    def on_modified(self, view):
+        sel = view.sel()
+        if sel:
+            region = view.line(sel[0])
+            copyright = view.substr(region)
+            m = COPYRIGHT_RE.search(copyright)
+            copyright_updated = bool(m)
+            if copyright_updated or 'copyright_updated' in self.updated:
+                self.updated[view.buffer_id()] = copyright_updated
