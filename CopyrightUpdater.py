@@ -26,7 +26,7 @@ import datetime
 import sublime_plugin
 
 
-COPYRIGHT_RE_PATTERN = r'(Copyright (?:\([cC]\)|©) )([-0-9, ]+)( .+)'
+COPYRIGHT_RE_PATTERN = r'(Copyright (?:\([cC]\)|©) )([-0-9]+(?:, ?[-0-9]+)*)(.+)'
 COPYRIGHT_RE = re.compile(COPYRIGHT_RE_PATTERN)
 
 
