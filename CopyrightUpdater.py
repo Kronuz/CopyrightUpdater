@@ -88,7 +88,7 @@ class CopyrightUpdater(sublime_plugin.EventListener):
             copyright = view.substr(region)
             m = COPYRIGHT_RE.search(copyright)
             copyright_updated = bool(m)
-            if copyright_updated or 'copyright_updated' in self.updated:
+            if copyright_updated or view.buffer_id() in self.updated:
                 self.updated[view.buffer_id()] = copyright_updated
 
     def on_close(self, view):
